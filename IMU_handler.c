@@ -15,7 +15,7 @@ void imu_setup(void) {
     SPI1CON1bits.CKE = 1;       // Output data changes on transition from active to idle
     SPI1CON1bits.CKP = 0;       // Idle state for clock is a low level
     SPI1STATbits.SPIEN = 1;     // re-enable SPI
-    tmr_wait_ms(TIMER2, 100);
+    tmr_wait_ms(TIMER2, 10);
 }
 
 /*
@@ -202,6 +202,23 @@ void imu_read_acc(accel_data_t *data)
     data->z = ((int16_t)msb << 8 | lsb) >> 4;
 }
 
+
+// provo ad accelerare con una sola transizione?
+//void imu_read_acc(accel_data_t *data)
+//{
+//    uint8_t buf[6];
+//    
+//    imu_select(IMU_ACC);
+//    spi_write(0x02 | 0x80);  // Read starting from reg 0x02, MSB=1
+//    for (int i = 0; i < 6; i++)
+//        buf[i] = spi_write(0x00);
+//    ACC_CS_LAT = 1;
+//
+//    data->x = (((int16_t)buf[1] << 8) | (buf[0] & 0xF0)) >> 4;
+//    data->y = (((int16_t)buf[3] << 8) | (buf[2] & 0xF0)) >> 4;
+//    data->z = (((int16_t)buf[5] << 8) | (buf[4] & 0xF0)) >> 4;
+}
+
 /*
   Set accelerometer low-pass filter bandwidth
   Written to register 0x10 (ACC_BW) pag.58 datasheet, valid values 8?15:
@@ -218,7 +235,7 @@ void imu_set_bandwidth(uint8_t bandwidth_value)
 
 /*
   Compute roll and pitch angles from accelerometer data
-  Uses atan2 for full 360� range, result in degrees
+  Uses atan2 for full 360 range, result in degrees
   Uses pointers to avoid unnecessary memory copies
    acc  ->  Pointer to raw accelerometer data
    angles -> Pointer to struct where angles will be stored
@@ -233,7 +250,7 @@ void imu_roll_pitch(const accel_data_t *acc, angle_data_t *angles)
      // Roll: rotation around X axis
     angles->roll  = atan2f(ay, az) * RAD_TO_DEG;
     // Pitch: rotation around Y axis
-    // Uses sqrt of ay�+az� as denominator for stability near �90�
+    // Uses sqrt of ay2+az2 as denominator for stability near90
     angles->pitch = atan2f(-ax, sqrtf(ay*ay + az*az)) * RAD_TO_DEG;
 }
 

@@ -48,8 +48,8 @@ void uart_init(void){
     
     U1STA = 0x00;                       // reset control and status register
     U1MODE = 0x00;                      // reset mode register
-//    U1BRG = 468 ;                       // Baud rate setting (72000000/16*9600)-1
-    U1BRG = 38; //BAUD - 115200
+    U1BRG = 468 ;                       // Baud rate setting (72000000/16*9600)-1
+   // U1BRG = 38; //BAUD - 115200
     
     U1MODEbits.UARTEN = 1;              // Enable UART
     U1STAbits.UTXEN = 1;                // Enable TX
@@ -102,13 +102,36 @@ _U1TXInterrupt(void) {
 }
 
 
-// Send a null-terminated string over UART one character at a time
+//// Send a null-terminated string over UART one character at a time
 void uart_send_string(const char *s) {
     while (*s) {          // Loop until null terminator '\0'
         uart_send_char(*s);  // Send one character at a time
         s++;                 // Advance pointer to next character
     }
 }
+
+
+
+// chat
+//void uart_send_string(const char *s) {
+//    // copia tutto nel buffer TX senza toccare interrupt
+//    while (*s) {
+//        int next = (tx_head + 1) % TX_BUFFER_SIZE;
+//        if (next == tx_tail) break;  // buffer pieno: scarta
+//        tx_buffer[tx_head] = *s;
+//        tx_head = next;
+//        s++;
+//    }
+//    // kickstart UNA VOLTA SOLA alla fine
+//    IEC0bits.U1TXIE = 0;
+//    if (!U1STAbits.UTXBF) {
+//        if (tx_tail != tx_head) {
+//            U1TXREG = tx_buffer[tx_tail];
+//            tx_tail = (tx_tail + 1) % TX_BUFFER_SIZE;
+//        }
+//    }
+//    IEC0bits.U1TXIE = 1;
+//}
 
 // Check if RX buffer contains unread characters (returns 1 if available, 0 if empty)
 int uart_available(void) {
@@ -157,6 +180,16 @@ void uart_send_char(char c) {
     }
     IEC0bits.U1TXIE = 1;          // Re-enable TX interrupt — ISR will send the rest
 }
+
+
+//chat
+//void uart_send_char(char c) {
+//    int next = (tx_head + 1) % TX_BUFFER_SIZE;
+//    if (next == tx_tail) return;  // buffer pieno: scarta
+//    tx_buffer[tx_head] = c;
+//    tx_head = next;
+//}
+
 
 /*
   State machine parser — reads RX buffer and detects complete commands

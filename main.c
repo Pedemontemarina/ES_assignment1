@@ -45,6 +45,8 @@ void setup() {
 int main(void) {
     setup();
 
+    int hz= uart_get_hz(); // Get initial frequency setting for UART transmission
+
     // Struct to hold raw accelerometer data (x, y, z as int16_t)
     accel_data_t accel = {0};
 
@@ -62,19 +64,17 @@ int main(void) {
 
     while (1) {
         // Simulate a 7ms algorithm using TIMER2
-        tmr_wait_ms(TIMER2, 7);
+        tmr_wait_ms(TIMER3, 7);
 
         // Toggle LD2 every 500ms (50 cycles × 10ms) → blinks at 1 Hz
         if (count % 50 == 0) led_toggle_ld2();
         
         // Every 2 cycles × 10ms = 20ms → read accelerometer at 50 Hz
         if (count % 2 == 0) {
-            imu_read_acc(&accel);             // Read X, Y, Z via SPI
-            imu_roll_pitch(&accel, &angles);  // Compute roll and pitch from accel
+            imu_read_acc(&accel);             // Read X, Y, Z via SPI  
         }
 
          // Send $ACC at yy Hz, the user-configured frequency (0, 1, 2, 5, 10)
-        int hz = uart_get_hz(); // Get current frequency setting
         if (hz > 0) {   // hz = 0 means transmission is disabled
             if (count % (100 / hz) == 0) {
                 char msg[48];
@@ -84,7 +84,8 @@ int main(void) {
         }
 
         // Send $ANG every 200ms (20 cycles × 10ms) → fixed at 5 Hz
-        if (count % 20 == 0) {
+        if (count % 20 == 1) {
+            imu_roll_pitch(&accel, &angles);  // Compute roll and pitch from accel
             char msg[48];
             // %.2f → float with 2 decimal places, e.g. "$ANG,12.34,-5.67*"
             sprintf(msg, "$ANG,%.2f,%.2f*", angles.roll, angles.pitch);
@@ -95,6 +96,7 @@ int main(void) {
         if (uart_command_buffer()) {
             // Parse command ($BW or $HZ), validate value, update settings or send $ERR,1* if invalid
             uart_validate_command();
+            hz = uart_get_hz(); // Update hz in case it was changed by a valid $HZ command
         }
         // Increment cycle counter
         count++;
@@ -106,9 +108,6 @@ int main(void) {
             missed_deadlines++;
             led_toggle_ld1();  // o accendi fisso
 }
-    
-       // missed_deadlines += tmr_wait_period(TIMER1);
-        
     }
     return 0;
 }

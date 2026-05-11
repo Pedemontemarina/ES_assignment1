@@ -37,13 +37,13 @@ void spi_init_pins(void)
     //SPI1CON1bits.CKP = 0;     // clock idle low
     //SPI1CON1bits.CKE = 1;     // data changes on rising edge 
   
-    // Fspi =Fcy / (PPRE * SPRE) = 72 MHz / (1 * 2) = 36 MHz
-    /* SPI1CON1bits.SPRE = 3; //0b110;  secondary prescaler 2:1 
-    SPI1CON1bits.PPRE = 3; //0b11;   primary prescaler 1:1  */
+    // Fspi =Fcy / (PPRE * SPRE) 
+    SPI1CON1bits.SPRE = 3; //0b110;  secondary prescaler  
+    SPI1CON1bits.PPRE = 3; //0b11;   primary prescaler   
 
-    // IMU can support Fsck up to 15 MHz, I choose to use 4.5 MHz
-    SPI1CON1bits.PPRE = 1;   // 16:1 primary prescaler
-    SPI1CON1bits.SPRE = 7;   // 1:1 secondary prescaler 
+//    // IMU can support Fsck up to 15 MHz, I choose to use 4.5 MHz
+//    SPI1CON1bits.PPRE = 1;   // 16:1 primary prescaler
+//    SPI1CON1bits.SPRE = 7;   // 1:1 secondary prescaler 
 
     //SPI1STATbits.SPIROV = 0;  // clear overflow
     SPI1STATbits.SPIEN = 1;   // enable SPI

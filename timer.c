@@ -33,7 +33,15 @@ void tmr_setup_period(int timer, int ms){
             T2CONbits.TCKPS = 3;
             IFS0bits.T2IF = 0;
             T2CONbits.TON = 1;
-            break;    
+            break;  
+        
+        case TIMER3:
+            TMR3 = 0;
+            PR3 = (ms * (72000000LL/256)) / 1000;
+            T3CONbits.TCKPS = 3;
+            IFS0bits.T3IF = 0;
+            T3CONbits.TON = 1;
+            break;  
             
     }
 }
@@ -56,6 +64,14 @@ int tmr_wait_period(int timer){
                 IFS0bits.T2IF = 0;}
             while(!IFS0bits.T2IF); 
                 IFS0bits.T2IF = 0;
+            break;
+            
+        case TIMER3:
+            if (IFS0bits.T3IF == 1){
+                ret = 1;
+                IFS0bits.T3IF = 0;}
+            while(!IFS0bits.T3IF); 
+                IFS0bits.T3IF = 0;
             break;
 
     }
@@ -99,6 +115,25 @@ void tmr_wait_ms(int timer, int ms){
                 IFS0bits.T2IF = 0;      
             }  
             break;
+            
+        case TIMER3:
+            tmr_setup_period(TIMER3,200);
+            while(ms > 200){
+                   
+                while(!IFS0bits.T3IF); 
+                IFS0bits.T3IF = 0;  
+                
+                ms = ms-200;}
+            
+            if(ms>0){
+                tmr_setup_period(TIMER3,ms);
+                        
+                while(!IFS0bits.T3IF); 
+                IFS0bits.T3IF = 0;      
+            }  
+            break;
+            
     }
+    
 
 }
