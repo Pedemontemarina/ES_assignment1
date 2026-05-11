@@ -3,18 +3,21 @@
 #include <stdint.h> 
 #include <math.h>
 
+// Enum identifying which IMU sensor to address in read/write operations
 typedef enum {
     IMU_ACC,
     IMU_GYR,
     IMU_MAG
 } imu_device_t;
 
+// Raw 3-axis data from the accelerometer or gyroscope 
 typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
 } accel_data_t;
 
+// Orientation angles computed from accelerometer data in degrees
 typedef struct {
     float roll;
     float pitch;

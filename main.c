@@ -102,11 +102,11 @@ int main(void) {
         count++;
 
         // Wait for TIMER1 to expire (end of 10ms period)
-        // Returns 1 if deadline was already missed, 0 otherwise
+        // If we missed the deadline, toggle LD1 as an alert
         
         if (tmr_wait_period(TIMER1)) {
             missed_deadlines++;
-            led_toggle_ld1();  // o accendi fisso
+            led_toggle_ld1();  
 }
     }
     return 0;

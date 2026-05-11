@@ -8,8 +8,6 @@
 #define TIMER2 2
 #define TIMER3 3
 
-/* extern volatile int run_flag;
-extern volatile int num_int; */
 
 void timer_init(void);
 

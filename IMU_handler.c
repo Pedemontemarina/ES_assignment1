@@ -217,7 +217,7 @@ void imu_read_acc(accel_data_t *data)
 //    data->x = (((int16_t)buf[1] << 8) | (buf[0] & 0xF0)) >> 4;
 //    data->y = (((int16_t)buf[3] << 8) | (buf[2] & 0xF0)) >> 4;
 //    data->z = (((int16_t)buf[5] << 8) | (buf[4] & 0xF0)) >> 4;
-}
+//}
 
 /*
   Set accelerometer low-pass filter bandwidth
